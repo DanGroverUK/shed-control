@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <title>Shed Control</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    </head>
+    <body>
+        <h1>Shed</h1>
+        <div class="fan">
+			<h2>Fan Timer: {{ fanCounter }}</h2>
+		</div>
+		<div class="lights">
+			<h2>Light Status: {{ lights }}</h2>
+		</div>
+    </body>
+</html>

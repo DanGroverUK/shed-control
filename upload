@@ -1,0 +1,1 @@
+duck --upload sftp://ubuntu@3.11.245.242/var/www/html/shed/ ./shed/* -existing overwrite

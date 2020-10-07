@@ -1,4 +1,5 @@
 ./shed/.venv/bin/activate
 export FLASK_APP=shed/shed.py
 export FLASK_ENV=development
+export SECRET_KEY='5f352379324c22463451387a0aec5d2f'
 flask run --host=0.0.0.0

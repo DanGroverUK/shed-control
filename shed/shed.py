@@ -9,6 +9,7 @@ import forms
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = '5f352379324c22463451387a0aec5d2f'
+app.config['APPLICATION_ROOT'] = '/shed'
 # app.config.from_object('shed.config.conf')
 lightsOn = False
 fanTimer = 0
@@ -50,7 +51,14 @@ def index():
             message = "Fan turned off!"
         if FanForm.refresh.data:
             pass
-    return render_template("index.html", fanTimer=format_timespan(fanTimer), lights=lightStatus(), message=message, FanForm=FanForm)
+    if request.method == "GET":
+        message = url_for('index')
+    return render_template("index.html",
+                           fanTimer=format_timespan(fanTimer),
+                           lights=lightStatus(),
+                           message=message,
+                           FanForm=FanForm,
+                           posturl=url_for('index'))
 
 # @app.route('/add')
 # def add():

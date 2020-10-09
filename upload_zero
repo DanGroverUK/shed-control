@@ -1,0 +1,1 @@
+sudo rsync -r ./shed/ pi@192.168.0.45:/var/www/html/shed/

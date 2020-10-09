@@ -5,7 +5,7 @@ import datetime
 from flask import Flask, render_template, request, url_for, redirect
 from humanfriendly import format_timespan
 
-import shed.forms as forms
+import forms
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = '5f352379324c22463451387a0aec5d2f'

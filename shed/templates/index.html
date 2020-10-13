@@ -7,7 +7,7 @@
         <h1>Shed</h1>
         <div class="fan">
 			<h2>Fan Timer: {{ fanTimer }}</h2>
-            <form action="{{ posturl }}" method="post" role="form" class="fanform">
+            <form action="{{ posturl }}" method="post" role="form" class="fanform" enctype="multipart/form-data">
               {{ FanForm.csrf_token }}
               <h3>
                   {{ FanForm.hours.label }} {{ FanForm.hours() }}

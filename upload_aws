@@ -1,1 +1,3 @@
-duck --upload sftp://ubuntu@3.11.245.242/var/www/html/shed/ ./shed/* -existing overwrite
+rsync -avz --exclude-from 'exclude-list.txt' shed/ ubuntu@dan-grover.com:/var/www/html/shed/
+rsync -avz --chmod=Fu=rwx,Fg=rwx,Fo=rwx requirements.txt ubuntu@dan-grover.com:/var/www/html/shed/requirements.txt
+ssh ubuntu@dan-grover.com sudo service apache2 restart

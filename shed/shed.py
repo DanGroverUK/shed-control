@@ -1,15 +1,13 @@
 import threading
 import time
-import datetime
 
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, jsonify
 from humanfriendly import format_timespan
 
 import forms
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = '5f352379324c22463451387a0aec5d2f'
-app.config['APPLICATION_ROOT'] = '/shed'
+app.config["SECRET_KEY"] = 'fishandchips'
 # app.config.from_object('shed.config.conf')
 lightsOn = False
 fanTimer = 0
@@ -24,7 +22,10 @@ def checker():
     while True:
         if fanTimer > 0:
             fanTimer -= 1
+            if fanTimer == 0:
+                switchFan(False)
         time.sleep(1)
+
 
 def lightStatus():
     global lightsOn
@@ -33,7 +34,8 @@ def lightStatus():
     else:
         return "Off"
 
-@app.route('/', methods=('GET', 'POST'))
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
     message = ""
     FanForm = forms.FanForm()
@@ -44,15 +46,16 @@ def index():
             message = "Adding {} hours and {} minutes to the clock!".format(
                 str(hours), str(mins))
             total_secs = ((int(hours) * 60) + int(mins)) * 60
-            add(total_secs)
+            r = apiAdd("fan", total_secs, html=True)
+            if r["success"] is True:
+                message = r["message"]
+            else:
+                message = "ERROR: {}".format(r["message"])
         if FanForm.off.data:
-            global fanTimer
-            fanTimer = 0
-            message = "Fan turned off!"
+            r = (apiSwitch("fan", "false")).json()
+            message = r["message"]
         if FanForm.refresh.data:
             pass
-    if request.method == "GET":
-        message = url_for('index')
     return render_template("index.html",
                            fanTimer=format_timespan(fanTimer),
                            lights=lightStatus(),
@@ -60,21 +63,64 @@ def index():
                            FanForm=FanForm,
                            posturl=url_for('index'))
 
-# @app.route('/add')
-# def add():
-#     global fanTimer
-#     fanTimer = fanTimer + 60
-#     return redirect(url_for('index'))
 
-@app.route('/add/<val>')
-def add(val):
-    try:
-        val = int(val)
+@app.route('/api', methods=['GET'])
+def apiIndex():
+    data = {
+        "fanTimer": format_timespan(fanTimer),
+        "lights": lightStatus()
+    }
+    return jsonify(data)
+
+
+@app.route('/api/add/<obj>/<val>', methods=['POST'])
+def apiAdd(obj, val, html=False):
+    if obj == "fan":
         global fanTimer
-        fanTimer = fanTimer + val
-    except TypeError:
-        print("Not an int")
-    return redirect(url_for('index'))
+        fanTimer = fanTimer + int(val)
+        message = "{} added to the fan timer.".format(format_timespan(int(val)))
+    data = {
+        "fanTimer": fanTimer,
+        "lights": lightStatus(),
+        "success": True,
+        "message": message
+    }
+    if html:
+        return data
+    else:
+        return jsonify(data)
+
+
+@app.route('/api/switch/<obj>/<val>', methods=['POST'])
+def apiSwitch(obj, val, html=False):
+    if obj == "lights":
+        switchLights(bool(val))
+    if obj == "fan":
+        switchFan(bool(val))
+    if bool(val) is True:
+        status = "On"
+    else:
+        status = "Off"
+    message = "{} switched {}.".format(obj, status)
+    data = {
+        "fanTimer": fanTimer,
+        "lights": lightStatus(),
+        "success": True,
+        "message": message
+    }
+    if html:
+        return data
+    else:
+        return jsonify(data)
+
+
+def switchLights(val):
+    pass
+
+
+def switchFan(val):
+    pass
+
 
 checkT = threading.Thread(group=None, target=checker)
 checkT.daemon = True

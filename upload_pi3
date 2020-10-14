@@ -1,3 +1,5 @@
-rsync -avz --exclude-from 'exclude-list.txt' shed/ pi@192.168.0.23:/var/www/html/shed/
-rsync -avz --chmod=Fu=rwx,Fg=rwx,Fo=rwx requirements.txt pi@192.168.0.23:/var/www/html/shed/requirements.txt
-ssh pi@192.168.0.23 sudo service apache2 restart
+rsync -avz --exclude-from 'exclude-list.txt' shed/ pi@pi3.local:/var/www/html/shed/
+rsync -avz --exclude-from 'exclude-list.txt' api/ pi@pi3.local:/var/www/html/api/
+rsync -avz --chmod=Fu=rwx,Fg=rwx,Fo=rwx requirements.txt pi@pi3.local:/var/www/html/shed/requirements.txt
+rsync -avz --chmod=Fu=rwx,Fg=rwx,Fo=rwx api_requirements.txt pi@pi3.local:/var/www/html/api/requirements.txt
+ssh pi@pi3.local sudo service apache2 restart

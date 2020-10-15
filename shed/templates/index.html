@@ -20,10 +20,12 @@
 		<div class="lights"><h2><span>Light Status:
             {% if lights == "On" %}
 			  </span><span class="myellow">On
-            {% elif mcolor == "mblue_anim" %}
-              </span><span class="mblue_anim">Off
             {% else %}
-              </span><span class="mblue">Off
+              {% if mcolor == "mblue_anim" %}
+                </span><span class="mblue_anim">Off
+              {% else %}
+                </span><span class="mblue">Off
+              {% endif%}
             </span></h2>{% endif %}<form action="{{ posturl }}" method="post" role="form" class="lightform" enctype="multipart/form-data">
             {{ LightForm.csrf_token }}
             <h3>{{ LightForm.lon() }} {{ LightForm.loff() }}

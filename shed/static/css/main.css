@@ -3,28 +3,91 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #444;
   background: black;
+  font-size: medium;
 }
 
+span {
+  /*float: left;*/
+}
+
+
 body h1 {
-  font-size: 6em;
-  margin: auto;
+  font-size: 800%;
+  margin: 0px;
+  border: 0px;
+  margin: 0px;
   text-align: left;
   letter-spacing: -7px;
   color: white;
+  /*line-height: 80%;*/
+  /*float: left;*/
 }
 
 body h2 {
-  font-size: 2em;
+  font-size: 200%;
+  text-align: left;
+  letter-spacing: -2px;
+  /*margin: auto;*/
+  /*line-height: 80%;*/
+}
+
+body h3 {
+  font-size: 150%;
   /*margin-top: 1px;*/
   text-align: left;
   letter-spacing: -1px;
 }
 
-body h3 {
-  font-size: 1.5em;
-  /*margin-top: 1px;*/
-  text-align: left;
+@keyframes textFade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes orangeToBlue {
+  0% {
+    color: #F7CD42;
+  }
+  80% {
+    color: #04257E;
+  }
+}
+
+.message {
+  opacity: 0;
+  /*color: #55D3D5;*/
+  font-size: 20%;
+  animation-name: textFade;
+  animation-duration: 10s;
   letter-spacing: -1px;
+  line-height: 85%;
+  /*float: left;*/
+}
+
+.myellow {
+  color: #F7CD42;
+}
+
+.mblue {
+  color: #04257E;
+}
+
+.mblue_anim {
+  color: #04257E;
+  /*text-shadow: -1px 1px 2px #ffff;*/
+  animation-name: orangeToBlue;
+  animation-duration: 5s
+}
+
+.mblack {
+  color: #000000;
+}
+
+.mwhite {
+  color: #ffffff;
 }
 
 .fan {
@@ -35,4 +98,5 @@ body h3 {
 .lights {
   background: #B2B2B2;
   color: black;
+  /*line-height: 90%*/
 }

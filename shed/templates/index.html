@@ -4,26 +4,28 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     </head>
     <body>
-        <h1>Shed</h1>
-        <div class="fan">
-			<h2>Fan Timer: {{ fanTimer }}</h2>
-            <form action="{{ posturl }}" method="post" role="form" class="fanform" enctype="multipart/form-data">
-              {{ FanForm.csrf_token }}
+        <h1>Shed
+        <span class="message">
+        <span class="{{ mcolor }}">{{ message }}</span></span></h1>
+        <div class="fan"><h2>Fan Timer: {{ fanTimer }}</h2>
+		<form action="{{ posturl }}" method="post" role="form" class="fanform" enctype="multipart/form-data">
               <h3>
-                  {{ FanForm.hours.label }} {{ FanForm.hours() }}
-                  {{ FanForm.mins.label }} {{ FanForm.mins() }}
-                  {{ FanForm.add() }}
-                  {{ FanForm.off() }}
-                  {{ FanForm.refresh() }}
-              </h3>
-              <!-- <input type="submit" value="Add"> -->
-            </form>
-            <h4>
-                {{ message }}
-            </h4>
-		</div>
-		<div class="lights">
-			<h2>Light Status: {{ lights }}</h2>
-		</div>
-    </body>
+                  {{ FanForm.fhours.label }} {{ FanForm.fhours() }}
+                  {{ FanForm.fmins.label }} {{ FanForm.fmins() }}
+                  {{ FanForm.fadd() }}
+                  {{ FanForm.foff() }}
+                  {{ FanForm.frefresh() }}
+                  {{ FanForm.csrf_token }}
+		</h3></form></div>
+		<div class="lights"><h2><span>Light Status:
+            {% if lights == "On" %}
+			  </span><span class="myellow">On
+            {% elif mcolor == "mblue_anim" %}
+              </span><span class="mblue_anim">Off
+            {% else %}
+              </span><span class="mblue">Off
+            </span></h2>{% endif %}<form action="{{ posturl }}" method="post" role="form" class="lightform" enctype="multipart/form-data">
+            {{ LightForm.csrf_token }}
+            <h3>{{ LightForm.lon() }} {{ LightForm.loff() }}
+            </h3></div></body>
 </html>

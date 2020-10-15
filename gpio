@@ -1,0 +1,1 @@
+GPIOZERO_PIN_FACTORY=pigpio PIGOP_ADDR=pi3.local python3 ~/git/shed-control/gpio.py

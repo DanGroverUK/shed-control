@@ -1,33 +1,41 @@
 <html>
-    <head>
-        <title>Shed Control</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    </head>
-    <body>
-        <h1>Shed
-        <span class="message">
-        <span class="{{ mcolor }}">{{ message }}</span></span></h1>
-        <div class="fan"><h2>Fan Timer: {{ fanTimer }}</h2>
-		<form action="{{ posturl }}" method="post" role="form" class="fanform" enctype="multipart/form-data">
-              <h3>
-                  {{ FanForm.fhours.label }} {{ FanForm.fhours() }}
-                  {{ FanForm.fmins.label }} {{ FanForm.fmins() }}
-                  {{ FanForm.fadd() }}
-                  {{ FanForm.foff() }}
-                  {{ FanForm.frefresh() }}
-                  {{ FanForm.csrf_token }}
-		</h3></form></div>
-		<div class="lights"><h2><span>Light Status:
-            {% if lights == "On" %}
-			  </span><span class="myellow">On
-            {% else %}
-              {% if mcolor == "mblue_anim" %}
-                </span><span class="mblue_anim">Off
-              {% else %}
-                </span><span class="mblue">Off
-              {% endif%}
-            </span></h2>{% endif %}<form action="{{ posturl }}" method="post" role="form" class="lightform" enctype="multipart/form-data">
-            {{ LightForm.csrf_token }}
-            <h3>{{ LightForm.lon() }} {{ LightForm.loff() }}
-            </h3></div></body>
+<head><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shed Control</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+  <div class="topcontainer">
+	<!-- <div class="nicerow"> -->
+	<span class="title">Shed</span>
+	<span class="message">
+		<span class="{{ mcolor }}">{{ message }}</span>
+	</span>
+	</div>
+<!-- </div> -->
+<br>
+<div class="fan"><h2><p>Fan Timer: {{ fanTimer }}</p>
+</h2><form action="{{ posturl }}" method="post" role="form" class="fanform" enctype="multipart/form-data">{{ FanForm.csrf_token }}
+<div class="nicerow"><div class="rowalign_lab">{{ FanForm.fhours.label }}</div><div class="rowalign">{{ FanForm.fhours() }}</div><div class="rowalign_lab">{{ FanForm.fmins.label }}</div><div class="rowalign">{{ FanForm.fmins() }}</div>
+</div>
+<br>
+<div class="nicerow"><div class="rowalign">{{ FanForm.fadd() }}</div><div class="rowalign">{{ FanForm.foff() }}</div><div class="rowalign">{{ FanForm.frefresh() }}</div></div>
+</form></div>
+<br>
+<div class="lights">
+<h2><p><span>Light Status:
+{% if lights == "On" %}
+	</span><span class="myellow">On
+{% else %}
+	{% if mcolor == "mblue_anim" %}
+		</span><span class="mblue_anim">Off
+	{% else %}
+		</span><span class="mblue">Off
+	{% endif%}
+{% endif %}</span></p></h2>
+<form action="{{ posturl }}" method="post" role="form" class="lightform" enctype="multipart/form-data">{{ LightForm.csrf_token }}
+<div class="nicerow">
+<div class="rowalign">{{ LightForm.lon() }}</div><div class="rowalign">{{ LightForm.loff() }}</div>
+</div>
+</form>
+</div></body>
 </html>

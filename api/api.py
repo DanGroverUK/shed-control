@@ -1,9 +1,60 @@
 import threading
 import time
+import copy
 
 import pigpio
+
 from flask import Flask, jsonify
 from humanfriendly import format_timespan
+import board
+import busio
+import adafruit_ssd1306 as af
+# import digitalio
+from PIL import Image, ImageDraw, ImageFont
+
+class PiDisplay():
+    def __init__(self):
+        i2c = busio.I2C(board.SCL, board.SDA)
+        self.oled = af.SSD1306_I2C(128, 64, i2c)
+        self.oled.fill(0)
+        self.oled.show()
+        self.image = Image.new("1", (self.oled.width, self.oled.height))
+        draw = ImageDraw.Draw(self.image)
+        draw.rectangle((0, 0, self.oled.width, self.oled.height), outline=0, fill=0)
+        draw.rectangle((5, 5, self.oled.width - 5 - 1, self.oled.height - 5 - 1),
+                       outline=255,
+                       fill=255)
+        self.font = ImageFont.load_default()
+        text = "Hey, fucko!"
+        (font_width, font_height) = self.font.getsize(text)
+        draw.text(
+            (self.oled.width // 2 - font_width // 2, self.oled.height // 2 - font_height // 2),
+            text,
+            font=self.font,
+            fill=0,
+        )
+
+        # Display image
+        self.oled.image(self.image)
+        self.oled.show()
+
+    def writeText(self, t):
+        image = Image.new("1", (self.oled.width, self.oled.height))
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((0, 0, self.oled.width, self.oled.height), outline=0, fill=0)
+        draw.rectangle((5, 5, self.oled.width - 5 - 1, self.oled.height - 5 - 1),
+                       outline=255,
+                       fill=255)
+        (font_width, font_height) = self.font.getsize(t)
+        draw.text(
+            (self.oled.width // 2 - font_width // 2, self.oled.height // 2 - font_height // 2),
+            t,
+            font=self.font,
+            fill=0,
+        )
+        self.oled.image(image)
+        self.oled.show()
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'shedapi'
@@ -11,6 +62,7 @@ app.config["SECRET_KEY"] = 'shedapi'
 lightsOn = False
 fanTimer = 0
 pi3 = pigpio.pi(host='pi3.local')
+PiD = PiDisplay()
 # format_timespan(fanTimer)
 
 
@@ -99,7 +151,9 @@ def switchLights(val):
 def checker():
     global lightsOn
     global fanTimer
+    global PiD
     while True:
+        PiD.writeText("Fan Time: {}s".format(str(fanTimer)))
         if fanTimer > 0:
             fanTimer -= 1
             if fanTimer == 0:

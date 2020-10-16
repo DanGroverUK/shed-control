@@ -1,41 +1,74 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   padding: 0;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #444;
+  color: white;
   background: black;
   font-size: medium;
+  margin: 0%;
+  font-weight: bold;
+  width: 90%;
 }
 
 span {
-  /*float: left;*/
 }
 
+p {
+  margin: 0px;
+}
 
-body h1 {
+h1 {
   font-size: 800%;
-  margin: 0px;
-  border: 0px;
-  margin: 0px;
-  text-align: left;
   letter-spacing: -7px;
-  color: white;
-  /*line-height: 80%;*/
-  /*float: left;*/
+  margin: 0%;
 }
 
-body h2 {
-  font-size: 200%;
-  text-align: left;
-  letter-spacing: -2px;
-  /*margin: auto;*/
-  /*line-height: 80%;*/
-}
-
-body h3 {
+h2 {
   font-size: 150%;
-  /*margin-top: 1px;*/
   text-align: left;
   letter-spacing: -1px;
+  margin: 0%;
+  padding-left: 5px;
+  /*line-height: 80%;*/
+}
+
+h3 {
+  font-size: 120%;
+  margin: 0px;
+  text-align: left;
+  letter-spacing: -1px;
+}
+
+form {
+  margin: 0%;
+  padding-bottom: 5px;
+  padding-top: 5px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  /*width: 285px;*/
+}
+
+select {
+  width: 80%;
+  /*font-size: 100%;*/
+  font: inherit;
+  flex-grow: 1.5;
+}
+
+label {
+  width: 100%;
+  text-align: right;
+  padding-right: 10px;
+  flex-grow: 0.5;
+}
+
+input {
+  font-weight: bold;
+  width: 100%;
+  font: inherit;
 }
 
 @keyframes textFade {
@@ -56,16 +89,56 @@ body h3 {
   }
 }
 
+.nicerow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-content: stretch;
+  /*justify-content: space-around;*/
+}
+
+.rowalign {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: auto;
+  align-items: center;
+}
+
+.rowalign_lab {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: auto;
+  align-items: center;
+}
+
+.topcontainer {
+  display: grid;
+  grid-template-columns: 285px auto;
+  /*grid-template-rows: 108px;*/
+  align-items: end;
+}
+
+.title {
+  font-size: 800%;
+  letter-spacing: -7px;
+  margin: 0%;
+  font-weight: bold;
+  line-height: 85%;
+}
+
 .message {
   opacity: 0;
-  /*color: #55D3D5;*/
-  font-size: 20%;
+  font-size: 150%;
   animation-name: textFade;
   animation-duration: 10s;
   letter-spacing: -1px;
-  line-height: 85%;
-  /*float: left;*/
 }
+
+/*.subhead {
+  font-weight: bold;
+  font-size: 200%;
+  border-style: dotted;
+  border-color: white;
+}*/
 
 .myellow {
   color: #F7CD42;
@@ -90,13 +163,31 @@ body h3 {
   color: #ffffff;
 }
 
+.top {
+  vertical-align: bottom;
+  display: block;
+  height: 120px;
+}
+
 .fan {
   background: #B2B2B2;
   color: black;
+  display: block;
+  border-radius: 5px;
+  /*width: 285px;*/
+/*  border-style: solid;
+  border-width: 1px;
+  border-color: 858585;*/
 }
 
 .lights {
   background: #B2B2B2;
   color: black;
+  display: block;
+  border-radius: 5px;
+  /*width: 285px;*/
+/*  border-style: solid;
+  border-width: 1px;
+  border-color: #d6d6d6;*/
   /*line-height: 90%*/
 }

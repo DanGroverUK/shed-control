@@ -55,6 +55,13 @@ class PiDisplay():
         self.oled.image(image)
         self.oled.show()
 
+    def screenOff(self):
+        image = Image.new("1", (self.oled.width, self.oled.height))
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((0, 0, self.oled.width, self.oled.height), outline=0, fill=0)
+        self.oled.image(image)
+        self.oled.show()
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'shedapi'
@@ -152,12 +159,18 @@ def checker():
     global lightsOn
     global fanTimer
     global PiD
+    sleep_c = 0
     while True:
-        PiD.writeText("Fan Time: {}s".format(str(fanTimer)))
         if fanTimer > 0:
+            PiD.writeText("Fan Time: {}s".format(str(fanTimer)))
+            sleep_c = 0
             fanTimer -= 1
             if fanTimer == 0:
                 switchFan(False)
+        else:
+            sleep_c += 1
+            if sleep_c == 5:
+                PiD.screenOff()
         time.sleep(1)
 
 

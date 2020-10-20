@@ -11,20 +11,21 @@ import forms
 
 logging.basicConfig(stream=sys.stderr)
 app = Flask(__name__)
+config = {
+    "name": "pi3",
+    "port": 80,
+    "local": True,
+    "key": "8c47d75f-79e8-4dc5-aafe-091931cc15c2",
+    "api": "/api",
+    "server": "http://localhost"
+}
 try:
     basedir = os.path.abspath(os.path.dirname(__file__))
     cf = (os.path.join(basedir, 'config.json'))
     with open(cf, "r") as read_config:
         config = json.load(read_config)
-except:
-    config = {
-        "name": "pi3",
-        "port": 80,
-        "local": True,
-        "key": "8c47d75f-79e8-4dc5-aafe-091931cc15c2",
-        "api": "/api",
-        "server": "http://localhost"
-    }
+except FileNotFoundError:
+    logging.error("config.json not loaded - using defaults")
 logging.error(str(config))
 app.config["SECRET_KEY"] = config["key"]
 

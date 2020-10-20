@@ -1,6 +1,7 @@
 import threading
 import time
-import copy
+import os
+import logging
 
 import pigpio
 
@@ -11,6 +12,11 @@ import busio
 import adafruit_ssd1306 as af
 # import digitalio
 from PIL import Image, ImageDraw, ImageFont
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+i_log = os.path.join(basedir, "logs", "api_info.log")
+logging.basicConfig(filename=i_log, level=20)
+
 
 class PiDisplay():
     def __init__(self):
@@ -24,7 +30,14 @@ class PiDisplay():
         draw.rectangle((5, 5, self.oled.width - 5 - 1, self.oled.height - 5 - 1),
                        outline=255,
                        fill=255)
-        self.font = ImageFont.load_default()
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        rob = os.path.join(basedir, "Roboto-Medium.ttf")
+        try:
+            self.font = ImageFont.truetype(rob)
+            logging.info("Successfully loaded Roboto-Medium Font.")
+        except OSError:
+            logging.info("Error loading Roboto-Medium - falling back to load_default()")
+            self.font = ImageFont.load_default()
         text = "Hey, fucko!"
         (font_width, font_height) = self.font.getsize(text)
         draw.text(
@@ -65,12 +78,10 @@ class PiDisplay():
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'shedapi'
-# app.config.from_object('shed.config.conf')
 lightsOn = False
 fanTimer = 0
 pi3 = pigpio.pi(host='pi3.local')
 PiD = PiDisplay()
-# format_timespan(fanTimer)
 
 
 def status(s):

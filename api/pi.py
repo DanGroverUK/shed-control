@@ -18,9 +18,13 @@ class PiGPIO():
     def __init__(self):
         self.fan_p = 22
         self.light_p = 17
+        self.buttonA_p = 23
+        self.buttonB_p = 24
         self.pi = pigpio.pi(host='localhost')
         self.pi.set_mode(self.fan_p, pigpio.OUTPUT)
         self.pi.set_mode(self.light_p, pigpio.OUTPUT)
+        self.pi.set_mode(self.buttonB_p, pigpio.INPUT)
+        self.pi.set_mode(self.buttonA_p, pigpio.INPUT)
 
     def switchFan(self, s):
         logging.info("pi.switchFan run from {}".format(sys._getframe().f_back.f_code.co_name))

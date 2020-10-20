@@ -171,6 +171,34 @@ def apiShowVars():
     return jsonify(data)
 
 
+@app.route('/stats/pins', methods=['GET'])
+def apiShowPins():
+    # Shows the value of the standard variables on the screen for 5 seconds.
+    logging.info("Request URL: {} | User Agent: {} | Host: {}".format(request.url,
+                                                                      request.user_agent,
+                                                                      request.host))
+    logging.info("api.apiShowPins Function")
+    global PiD
+    global pause
+    pause = 10
+    while pause > 0:
+        data = {
+            "pin17": PiIO.readPin(17),
+            "pin22": PiIO.readPin(22),
+            "pin16": PiIO.readPin(16),
+            "pin18": PiIO.readPin(18)
+        }
+        logging.info("apiShowPins Var Data: {}".format(data))
+        PiD.showVars(data)
+        time.sleep(0.3)
+    data = standardData()
+    data.update({
+        "success": True,
+        "message": "Finished displaying data."
+    })
+    return jsonify(data)
+
+
 # Non-route functions
 
 

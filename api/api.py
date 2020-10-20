@@ -185,8 +185,8 @@ def apiShowPins():
         data = {
             "pin17": PiIO.readPin(17),
             "pin22": PiIO.readPin(22),
-            "pin16": PiIO.readPin(16),
-            "pin18": PiIO.readPin(18)
+            "pin23": PiIO.readPin(23),
+            "pin24": PiIO.readPin(24)
         }
         logging.info("apiShowPins Var Data: {}".format(data))
         PiD.showVars(data)

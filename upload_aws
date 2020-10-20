@@ -1,3 +1,4 @@
 rsync -avz --exclude-from 'exclude-list.txt' shed/ ubuntu@dan-grover.com:/var/www/html/shed/
 rsync -avz --chmod=Fu=rwx,Fg=rwx,Fo=rwx requirements.txt ubuntu@dan-grover.com:/var/www/html/shed/requirements.txt
+rsync -avz --chmod=Fu=rwx,Fg=rwx,Fo=rwx shed/config_dangrover.com.json pi@pi3.local:/var/www/html/shed/config.json
 ssh ubuntu@dan-grover.com sudo service apache2 restart

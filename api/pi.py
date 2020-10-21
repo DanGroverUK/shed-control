@@ -59,13 +59,16 @@ class PiDisplay():
         self.image = Image.new("1", (self.oled.width, self.oled.height), color=0)
         draw = ImageDraw.Draw(self.image)
         basedir = os.path.abspath(os.path.dirname(__file__))
-        rob = os.path.join(basedir, "Roboto-Medium.ttf")
+        rob = os.path.join(basedir, "Fonts", "RobotoMono-ExtraLight.ttf")
+        opensans = os.path.join(basedir, "Fonts", "OpenSans-Bold.ttf")
         try:
-            self.font = ImageFont.truetype(rob, 22)
+            self.font = ImageFont.truetype(opensans, 22)
             self.font_sml = ImageFont.truetype(rob, 12)
-            logging.info("Successfully loaded Roboto-Medium Font.")
+            logging.info("Successfully loaded RobotoMono-ExtraLight and OpenSans-Bold Font.")
         except OSError:
-            logging.info("Error loading Roboto-Medium - falling back to load_default()")
+            logging.info(
+                "Error loading RobotoMono-ExtraLight or OpenSans-Bold: "
+                "Falling back to load_default()")
             self.font = ImageFont.load_default()
         draw.multiline_text((self.top, self.left), "Hey Fucko!", font=self.font, fill=255)
         # Display image
@@ -136,12 +139,18 @@ class PiDisplay():
         image = scr["image"]
         cmd = "hostname -I | cut -d' ' -f1"
         IP = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
+        cmd = "top -bn1 | grep load | awk '{printf \"CPU Load:%.2f\", $(NF-2)}'"
         CPU = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%s MB  %.2f%%\", $3,$2,$3*100/$2 }'"
+        cmd = "free -m | awk 'NR==2{printf \"Mem:%s/%s MB %.2f%%\", $3,$2,$3*100/$2 }'"
         MemUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cmd = 'df -h | awk \'$NF=="/"{printf "Disk: %d/%d GB  %s", $3,$2,$5}\''
+        cmd = 'df -h | awk \'$NF=="/"{printf "Disk:%d/%d GB  %s", $3,$2,$5}\''
         Disk = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        info = {
+            "CPU": CPU,
+            "IP": ("IP: " + IP),
+            "MemUsage": MemUsage,
+            "Disk": Disk
+        }
         # Write four lines of text.
         draw.text((self.left, self.top + 0), "IP: " + IP, font=self.font_sml, fill=255)
         draw.text((self.left, self.top + 12), CPU, font=self.font_sml, fill=255)
@@ -149,4 +158,4 @@ class PiDisplay():
         draw.text((self.left, self.top + 36), Disk, font=self.font_sml, fill=255)
         self.oled.image(image)
         self.oled.show()
-
+        return info

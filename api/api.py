@@ -125,21 +125,21 @@ def apiShowStats(sleep):
     logging.info("api.apiShowStatus Function: sleep: {}".format(sleep))
     global PiD
     global pause
+    data = standardData()
     if (type(sleep) != int):
-        data = {
+        data.update({
             "success": False,
             "message": "Sleep time not an integer."
-        }
+        })
         return jsonify(data)
     else:
         pause = (sleep + 1)
         while pause > 0:
-            PiD.showStats()
+            info = PiD.showStats()
             time.sleep(0.5)
-    data = {
-        "success": True,
-        "message": "Finished displaying data."
-    }
+    data["message"] = "Finished displaying data."
+    for k in info.keys():
+        data["debugmessage"] = (data["debugmessage"] + " " + info[k])
     return jsonify(data)
 
 
@@ -152,18 +152,19 @@ def apiShowVars():
     logging.info("api.apiShowVars Function")
     global PiD
     global pause
-    pause = 6
+    pause = 10
     while pause > 0:
         data = standardData()
         del data["message"]
         del data["success"]
-        del data["pause"]
+        # del data["pause"]
         data["pin4"] = PiIO.readPin(4)
         data["pin17"] = PiIO.readPin(17)
         logging.info("apiShowVars Var Data: {}".format(data))
         PiD.showVars(data)
         time.sleep(1)
-    data = standardData()
+    data["debugmessage"] = str(data)
+    data.update(standardData())
     data.update({
         "success": True,
         "message": "Finished displaying data."
@@ -182,19 +183,20 @@ def apiShowPins():
     global pause
     pause = 10
     while pause > 0:
-        data = {
+        pdata = {
             "pin17": PiIO.readPin(17),
             "pin22": PiIO.readPin(22),
             "pin23": PiIO.readPin(23),
             "pin24": PiIO.readPin(24)
         }
-        logging.info("apiShowPins Var Data: {}".format(data))
-        PiD.showVars(data)
+        logging.info("apiShowPins Var Data: {}".format(pdata))
+        PiD.showVars(pdata)
         time.sleep(0.3)
     data = standardData()
     data.update({
         "success": True,
-        "message": "Finished displaying data."
+        "message": "Finished displaying data.",
+        "pdata": pdata
     })
     return jsonify(data)
 
@@ -232,6 +234,7 @@ def standardData():
         "lights": lightsOn,
         "success": True,
         "message": "",
+        "debugmessage": "",
         "piconnected": PiIO.pi.connected,
         "pause": pause
     }
@@ -272,7 +275,6 @@ def checker():
     sleep_c = 0
     while True:
         if pause > 0:
-            time.sleep(1)
             pause -= 1
             if pause < 0:
                 pause = 0
@@ -290,8 +292,8 @@ def checker():
                     PiD.screenOff()
                 if fanTimer < 0:
                     fanTimer = 0
-            time.sleep(1)
-        PiIO.readPin(22)
+        time.sleep(1)
+        # PiIO.readPin(22)
 
 
 checkT = threading.Thread(group=None, target=checker)

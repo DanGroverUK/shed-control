@@ -13,7 +13,7 @@
 	</div>
 <!-- </div> -->
 <br>
-<div class="fan"><h2><p>Fan Timer: {{ fanTimer }}</p>
+<div class="chunk"><h2><p>Fan Timer: {{ fanTimer }}</p>
 </h2><form action="{{ posturl }}" method="post" role="form" class="fanform" enctype="multipart/form-data">{{ FanForm.csrf_token }}
 <div class="nicerow"><div class="rowalign_lab">{{ FanForm.fhours.label }}</div><div class="rowalign">{{ FanForm.fhours() }}</div><div class="rowalign_lab">{{ FanForm.fmins.label }}</div><div class="rowalign">{{ FanForm.fmins() }}</div>
 </div>
@@ -21,7 +21,7 @@
 <div class="nicerow"><div class="rowalign">{{ FanForm.fadd() }}</div><div class="rowalign">{{ FanForm.foff() }}</div><div class="rowalign">{{ FanForm.frefresh() }}</div></div>
 </form></div>
 <br>
-<div class="lights">
+<div class="chunk">
 <h2><p><span>Light Status:
 {% if lights == "On" %}
 	</span><span class="myellow">On
@@ -35,6 +35,16 @@
 <form action="{{ posturl }}" method="post" role="form" class="lightform" enctype="multipart/form-data">{{ LightForm.csrf_token }}
 <div class="nicerow">
 <div class="rowalign">{{ LightForm.lon() }}</div><div class="rowalign">{{ LightForm.loff() }}</div>
+</div>
+</form>
+</div>
+<br>
+<div class="chunk">
+<h2><p><span>Debug Options:</span>
+	<span class="debugmessage">{ debugmessage }}</span></h2>
+<form action="{{ posturl }}" method="post" role="form" class="debugform" enctype="multipart/form-data">{{ DebugForm.csrf_token }}
+<div class="nicerow">
+<div class="rowalign">{{ DebugForm.dvars() }}</div><div class="rowalign">{{ DebugForm.dstats() }}</div><div class="rowalign">{{ DebugForm.dpins() }}</div>
 </div>
 </form>
 </div></body>

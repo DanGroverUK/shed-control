@@ -51,8 +51,10 @@ def status(s):
 def index():
     FanForm = forms.FanForm()
     LightForm = forms.LightForm()
+    DebugForm = forms.DebugForm()
     d = {
         "message": "",
+        "debugmessage": "",
         "mcolor": "mwhite",
         "fanTimer": 0,
         "lights": "Off"
@@ -64,6 +66,7 @@ def index():
         d["lights"] = status(resp["lights"])
     # If the form has been submittee
     if request.method == "POST":
+        logging.error("Request Form data: {}".format(request.form))
         # If Adding Time to Fan
         if FanForm.fadd.data:
             hours = request.form["fhours"]
@@ -102,14 +105,27 @@ def index():
             d["fanTimer"] = int(post["fanTimer"])
             d["lights"] = status(post["lights"])
             d["mcolor"] = "mblue_anim"
+        # If Debug Stats are requested
+        if DebugForm.dstats.data:
+            resp = reqs.get(URL + "/stats").json()
+            d.update(resp)
+        if DebugForm.dvars.data:
+            resp = reqs.get(URL + "/stats/vars").json()
+            d.update(resp)
+        if DebugForm.dpins.data:
+            resp = reqs.get(URL + "/stats/pins").json()
+            d.update(resp)
+            d["debugmessage"] = d["pdata"]
 
     return render_template("index.html",
                            fanTimer=format_timespan(d["fanTimer"]),
                            lights=d["lights"],
                            message=d["message"],
+                           debugmessage=d["debugmessage"],
                            mcolor=d["mcolor"],
                            FanForm=FanForm,
                            LightForm=LightForm,
+                           DebugForm=DebugForm,
                            posturl=url_for('index'))
 
 

@@ -115,7 +115,6 @@ def index():
         if DebugForm.dpins.data:
             resp = reqs.get(URL + "/stats/pins").json()
             d.update(resp)
-            d["debugmessage"] = d["pdata"]
 
     return render_template("index.html",
                            fanTimer=format_timespan(d["fanTimer"]),

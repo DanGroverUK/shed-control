@@ -129,17 +129,22 @@ def apiShowStats(sleep):
     if (type(sleep) != int):
         data.update({
             "success": False,
-            "message": "Sleep time not an integer."
+            "message": "Sleep time not an integer.",
+            "debugmessage": "Malformed POST request."
         })
         return jsonify(data)
     else:
-        pause = (sleep + 1)
-        while pause > 0:
-            info = PiD.showStats()
-            time.sleep(0.5)
-    data["message"] = "Finished displaying data."
+        info = PiD.showStats()
+        # Before we return the json data, we'll kick off a thread updating the screen.
+        dispStats = threading.Thread(group=None, target=displayStats, args=(sleep,))
+        dispStats.daemon = True
+        dispStats.start()
+    data["message"] = "Now displaying Pi hardware statistics for {}s.".format(sleep)
     for k in info.keys():
-        data["debugmessage"] = (data["debugmessage"] + " " + info[k])
+        if data["debugmessage"] == "":
+            data["debugmessage"] = info[k]
+        else:
+            data["debugmessage"] = "{}\t|\t{}".format(data["debugmessage"], info[k])
     return jsonify(data)
 
 
@@ -151,24 +156,23 @@ def apiShowVars():
                                                                       request.host))
     logging.info("api.apiShowVars Function")
     global PiD
-    global pause
-    pause = 10
-    while pause > 0:
-        data = standardData()
-        del data["message"]
-        del data["success"]
-        # del data["pause"]
-        data["pin4"] = PiIO.readPin(4)
-        data["pin17"] = PiIO.readPin(17)
-        logging.info("apiShowVars Var Data: {}".format(data))
-        PiD.showVars(data)
-        time.sleep(1)
+    data = standardData()
+    del data["message"]
+    del data["success"]
+    # del data["pause"]
+    data["pin4"] = PiIO.readPin(4)
+    data["pin17"] = PiIO.readPin(17)
+    logging.info("apiShowVars Var Data: {}".format(data))
+    PiD.showVars(data)
     data["debugmessage"] = str(data)
-    data.update(standardData())
     data.update({
         "success": True,
         "message": "Finished displaying data."
     })
+    # Before we return the json data, we'll kick off a thread updating the screen.
+    dispVars = threading.Thread(group=None, target=displayVars, args=(10,))
+    dispVars.daemon = True
+    dispVars.start()
     return jsonify(data)
 
 
@@ -180,8 +184,31 @@ def apiShowPins():
                                                                       request.host))
     logging.info("api.apiShowPins Function")
     global PiD
+    pdata = {
+        "pin17": PiIO.readPin(17),
+        "pin22": PiIO.readPin(22),
+        "pin23": PiIO.readPin(23),
+        "pin24": PiIO.readPin(24)
+    }
+    data = standardData()
+    data.update({
+        "success": True,
+        "message": "Finished displaying data.",
+        "debugmessage": pdata
+    })
+    # Before we return the json data, we'll kick off a thread updating the screen.
+    dispPins = threading.Thread(group=None, target=displayPins, args=(10,))
+    dispPins.daemon = True
+    dispPins.start()
+    return jsonify(data)
+
+
+# Non-route functions
+
+def displayPins(pause_s):
     global pause
-    pause = 10
+    global PiD
+    pause = pause_s
     while pause > 0:
         pdata = {
             "pin17": PiIO.readPin(17),
@@ -189,19 +216,34 @@ def apiShowPins():
             "pin23": PiIO.readPin(23),
             "pin24": PiIO.readPin(24)
         }
-        logging.info("apiShowPins Var Data: {}".format(pdata))
+        # logging.info("apiShowPins Var Data: {}".format(pdata))
         PiD.showVars(pdata)
         time.sleep(0.3)
-    data = standardData()
-    data.update({
-        "success": True,
-        "message": "Finished displaying data.",
-        "pdata": pdata
-    })
-    return jsonify(data)
 
 
-# Non-route functions
+def displayVars(pause_s):
+    global pause
+    global PiD
+    pause = pause_s
+    while pause > 0:
+        data = standardData()
+        del data["message"]
+        del data["success"]
+        # del data["pause"]
+        data["pin22"] = PiIO.readPin(22)
+        data["pin17"] = PiIO.readPin(17)
+        logging.info("apiShowVars Var Data: {}".format(data))
+        PiD.showVars(data)
+        time.sleep(0.5)
+
+
+def displayStats(pause_s):
+    global pause
+    global PiD
+    pause = pause_s
+    while pause > 0:
+        PiD.showStats()
+        time.sleep(0.5)
 
 
 def status(s):
@@ -279,13 +321,16 @@ def checker():
             if pause < 0:
                 pause = 0
         else:
-            if fanTimer > 0:
-                PiD.writeFanTimer(fanTimer)
-                sleep_c = 0
-                fanTimer -= 1
-                if fanTimer == 0:
-                    logging.info("api.checker switching off the fan!")
-                    switchFan(False)
+            if not fanTimer == 0:
+                if fanTimer < 0:
+                    fanTimer = 0
+                else:
+                    PiD.writeFanTimer(fanTimer)
+                    sleep_c = 0
+                    fanTimer -= 1
+                    if fanTimer == 0:
+                        logging.info("api.checker switching off the fan!")
+                        switchFan(False)
             else:
                 sleep_c += 1
                 if sleep_c == 10:

@@ -1,19 +1,47 @@
+@import "fonts.css";
+
 * {
   box-sizing: border-box;
 }
 
+a:focus, a:active {
+  text-decoration: none;
+  outline: none;
+  transition: all 300ms ease 0s;
+  -moz-transition: all 300ms ease 0s;
+  -webkit-transition: all 300ms ease 0s;
+  -o-transition: all 300ms ease 0s;
+  -ms-transition: all 300ms ease 0s;
+}
+
 body {
-  padding: 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: white;
+  padding: 5px;
+  font-family: "Commissioner", "Roboto-Mono";
+  text-rendering: geometricprecision;
+  color: #222222;
   background: black;
   font-size: medium;
   margin: 0%;
-  font-weight: bold;
-  width: 90%;
+  font-weight: 700;
+  width: 100%;
 }
 
-span {
+@supports (-webkit-font-smoothing: subpixel-antialiased) {
+  body {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+  input, select, label {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+}
+
+@supports not (-webkit-font-smoothing: subpixel-antialiased) {
+  body {
+    text-rendering: geometricprecision;
+  }
+  input, select, label {
+    text-rendering: geometricprecision;
+  }
 }
 
 p {
@@ -28,6 +56,7 @@ h1 {
 
 h2 {
   font-size: 150%;
+  font-weight: 700;
   text-align: left;
   letter-spacing: -1px;
   margin: 0%;
@@ -44,31 +73,45 @@ h3 {
 
 form {
   margin: 0%;
-  padding-bottom: 5px;
-  padding-top: 5px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: bold;
+  padding: 5px;
+  /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+  font-weight: 500;
+  background-color: transparent;
   /*width: 285px;*/
 }
 
-select {
+input, select {
   width: 80%;
-  /*font-size: 100%;*/
-  font: inherit;
-  flex-grow: 1.5;
+  font-family: "Commissioner", "Roboto-Mono";
+  font-weight: 600;
+  color: #222222;
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  /*border: 1px solid #999999;*/
+  background-color: #ebebeb;
+  font-size: 100%;
+  padding: 3px;
+  border-radius: 3px;
+  cursor: pointer;
 }
+
+select::-ms-expand {
+  display: none;
+}
+
+
 
 label {
   width: 100%;
   text-align: right;
   padding-right: 10px;
   flex-grow: 0.5;
-}
-
-input {
-  font-weight: bold;
-  width: 100%;
-  font: inherit;
+  font-family: "Commissioner", "Roboto-Mono";
+  font-weight: 600;
+  font-size: 120%
+  color: #222222;
 }
 
 @keyframes textFade {
@@ -93,6 +136,7 @@ input {
   display: flex;
   flex-wrap: nowrap;
   align-content: stretch;
+  padding: 5px;
   /*justify-content: space-around;*/
 }
 
@@ -101,6 +145,7 @@ input {
   flex-grow: 1;
   flex-basis: auto;
   align-items: center;
+  padding: 2px;
 }
 
 .rowalign_lab {
@@ -119,10 +164,11 @@ input {
 
 .title {
   font-size: 800%;
-  letter-spacing: -7px;
+  letter-spacing: -5px;
   margin: 0%;
-  font-weight: bold;
+  font-weight: 800;
   line-height: 85%;
+  color: #ebebeb
 }
 
 .message {
@@ -131,21 +177,16 @@ input {
   animation-name: textFade;
   animation-duration: 10s;
   letter-spacing: -1px;
+  font-weight: 300;
+  color: #ebebeb;
 }
 
 .debugmessage {
-  opacity: 0;
-  font-size: 50%;
-  color: black;
+  font-size: 80%;
   letter-spacing: -1px;
+  font-weight: 400;
+  color: #222222;
 }
-
-/*.subhead {
-  font-weight: bold;
-  font-size: 200%;
-  border-style: dotted;
-  border-color: white;
-}*/
 
 .myellow {
   color: #F7CD42;
@@ -170,15 +211,59 @@ input {
   color: #ffffff;
 }
 
-.top {
-  vertical-align: bottom;
-  display: block;
-  height: 120px;
-}
-
 .chunk {
   background: #B2B2B2;
   color: black;
   display: block;
   border-radius: 5px;
+  margin-top: 5px;
+}
+
+.fantimer {
+  font-weight: 400;
+}
+
+@media screen and (max-width: 700px) {
+  .title {
+    font-size: 600%;
+    letter-spacing: : -4px;
+  }
+  .topcontainer {
+    grid-template-columns: 210px auto;
+  }
+  .nicerow {
+    flex-direction: column;
+  }
+  label {
+    text-align: left;
+    padding-left: 5px;
+  }
+  .message {
+    font-size: 100%;
+  }
+}
+
+@media screen and (max-width: 480px){
+  .message {
+    font-size: 80%;
+  }
+  .debugmessage {
+    font-size: 60%;
+  }
+  h2 {
+    font-size: 120%;
+  }
+
+@media screen and (max-width: 350px){
+  .title {
+    font-size: 400%;
+    letter-spacing: -3px;
+  }
+  .topcontainer {
+    grid-template-columns: 140px auto;
+  }
+  .message {
+    font-size: 80%;
+    font-weight: 400,
+  }
 }

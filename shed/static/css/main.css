@@ -231,10 +231,11 @@ label {
     letter-spacing: : -4px;
   }
   h2 {
-    font-size: 120%;
+    /*font-size: 120%;*/
   }
   .fantimer {
     font-size: 60%;
+    letter-spacing: 0px;
   }
   .topcontainer {
     grid-template-columns: 210px auto;
@@ -243,13 +244,13 @@ label {
     flex-direction: column;
     font-size: 150%;
     height: auto;
-    padding: 5px;
   }
   .rowalign {
     padding: 6px;
   }
   .rowalign_lab {
     padding-left: 2px;
+    font-size: 90%;
   }
   label {
     text-align: left;
@@ -261,6 +262,7 @@ label {
   .debugmessage {
     font-size: 60%;
     font-weight: 400;
+    letter-spacing: 0px;
   }
 }
 

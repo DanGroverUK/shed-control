@@ -36,6 +36,11 @@ URL = "{server}:{port}{api}/".format(
 
 
 def status(s):
+    if type(s) is int:
+        if s > 0:
+            s = 1
+    if type(s) is str:
+        s = s.lower()
     y = [1, "1", True, "true", "on"]
     n = [0, "0", False, "false", "off"]
     if type(s) == str:
@@ -49,7 +54,7 @@ def status(s):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    FanForm = forms.FanForm()
+    FanForm = forms.FanForm(fhours="1", fmins="0")
     LightForm = forms.LightForm()
     DebugForm = forms.DebugForm()
     d = {
@@ -108,7 +113,15 @@ def index():
         # If Debug Stats are requested
         if DebugForm.dstats.data:
             resp = reqs.get(URL + "/stats").json()
+            s_ls = resp["debugmessage"].split(",")
             d.update(resp)
+            ns = ""
+            for s in s_ls:
+                if ns == "":
+                    ns = s
+                else:
+                    ns = "{}  |  {}".format(ns, s)
+            d["debugmessage"] = ns
         if DebugForm.dvars.data:
             resp = reqs.get(URL + "/stats/vars").json()
             d.update(resp)
@@ -118,7 +131,7 @@ def index():
 
     return render_template("index.html",
                            fanTimer=format_timespan(d["fanTimer"]),
-                           lights=d["lights"],
+                           lights=status(d["lights"]),
                            message=d["message"],
                            debugmessage=d["debugmessage"],
                            mcolor=d["mcolor"],

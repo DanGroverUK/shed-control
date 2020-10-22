@@ -6,6 +6,9 @@ if [ ! $# == 1 ]; then
     rsync -avz --chmod=Fu=rwx,Fg=rwx,Fo=rwx api_requirements.txt pi@zero.local:/var/www/html/api/requirements.txt
     ssh ubuntu@dan-grover.com sudo service apache2 restart
     ssh pi@zero.local sudo service apache2 restart
+    echo "Kicking off the WSGI app..."
+    wget -O ~/blah "http://192.168.0.51:80/api/"
+    rm ~/blah
 else
     mode="$1"
     if [ $mode ==  "shed" ]; then

@@ -15,7 +15,7 @@
 <!-- <br> -->
 <div class="chunk"><h2><p>Fan Timer: <span class="fantimer">{{ fanTimer }}</span></p>
 </h2><form action="{{ posturl }}" method="post" role="form" class="fanform" enctype="multipart/form-data">{{ FanForm.csrf_token }}
-<div class="nicerow"><div class="rowalign_lab">{{ FanForm.fhours.label }}</div><div class="rowalign">{{ FanForm.fhours() }}</div><div class="rowalign_lab">{{ FanForm.fmins.label }}</div><div class="rowalign">{{ FanForm.fmins() }}</div><div class="rowalign"> </div><div class="rowalign"> </div>
+<div class="nicerow"><div class="rowalign_lab">{{ FanForm.fhours.label }}</div><div class="rowalign">{{ FanForm.fhours() }}</div><div class="rowalign_lab">{{ FanForm.fmins.label }}</div><div class="rowalign">{{ FanForm.fmins() }}</div>
 </div>
 <!-- <br> -->
 <div class="nicerow"><div class="rowalign">{{ FanForm.fadd() }}</div><div class="rowalign">{{ FanForm.foff() }}</div><div class="rowalign">{{ FanForm.frefresh() }}</div></div>

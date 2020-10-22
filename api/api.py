@@ -144,7 +144,7 @@ def apiShowStats(sleep):
         if data["debugmessage"] == "":
             data["debugmessage"] = info[k]
         else:
-            data["debugmessage"] = "{}     |     {}".format(data["debugmessage"], info[k])
+            data["debugmessage"] = "{},{}".format(data["debugmessage"], info[k])
     return jsonify(data)
 
 
@@ -160,7 +160,7 @@ def apiShowVars():
     del data["message"]
     del data["success"]
     # del data["pause"]
-    data["pin4"] = PiIO.readPin(4)
+    data["pin4"] = PiIO.readPin(22)
     data["pin17"] = PiIO.readPin(17)
     logging.info("apiShowVars Var Data: {}".format(data))
     PiD.showVars(data)
@@ -219,6 +219,7 @@ def displayPins(pause_s):
         # logging.info("apiShowPins Var Data: {}".format(pdata))
         PiD.showVars(pdata)
         time.sleep(0.3)
+    PiD.byeBye()
 
 
 def displayVars(pause_s):
@@ -235,6 +236,7 @@ def displayVars(pause_s):
         logging.info("apiShowVars Var Data: {}".format(data))
         PiD.showVars(data)
         time.sleep(0.5)
+    PiD.byeBye()
 
 
 def displayStats(pause_s):
@@ -244,6 +246,7 @@ def displayStats(pause_s):
     while pause > 0:
         PiD.showStats()
         time.sleep(0.5)
+    PiD.byeBye()
 
 
 def status(s):

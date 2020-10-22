@@ -142,7 +142,7 @@ class PiDisplay():
         image = scr["image"]
         cmd = "hostname -I | cut -d' ' -f1"
         IP = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cmd = "top -bn1 | grep load | awk '{printf \"CPU Load:%.2f\", $(NF-2)}'"
+        cmd = "top -bn1 | grep load | awk '{printf \"CPU Load:%.0f%%\", $(NF-2)*100}'"
         CPU = subprocess.check_output(cmd, shell=True).decode("utf-8")
         cmd = "free -m | awk 'NR==2{printf \"Mem:%s/%s MB %.2f%%\", $3,$2,$3*100/$2 }'"
         MemUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")

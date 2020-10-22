@@ -144,7 +144,7 @@ def apiShowStats(sleep):
         if data["debugmessage"] == "":
             data["debugmessage"] = info[k]
         else:
-            data["debugmessage"] = "{}\t|\t{}".format(data["debugmessage"], info[k])
+            data["debugmessage"] = "{}     |     {}".format(data["debugmessage"], info[k])
     return jsonify(data)
 
 

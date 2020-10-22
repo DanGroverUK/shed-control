@@ -277,7 +277,6 @@ def standardData():
         "success": True,
         "message": "",
         "debugmessage": "",
-        "piconnected": PiIO.pi.connected,
         "pause": pause
     }
     logging.info("standardData returned: {}".format(str(data)))

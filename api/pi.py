@@ -8,7 +8,8 @@ import logging
 import board
 import busio
 import adafruit_ssd1306 as af
-import pigpio
+# import pigpio
+import RPi.GPIO as GPIO
 from PIL import Image, ImageDraw, ImageFont
 
 logging.getLogger(__name__)
@@ -20,27 +21,29 @@ class PiGPIO():
         self.light_p = 17
         self.buttonA_p = 23
         self.buttonB_p = 24
-        self.pi = pigpio.pi(host='localhost')
-        self.pi.set_mode(self.fan_p, pigpio.OUTPUT)
-        self.pi.set_mode(self.light_p, pigpio.OUTPUT)
-        self.pi.set_mode(self.buttonB_p, pigpio.INPUT)
-        self.pi.set_mode(self.buttonA_p, pigpio.INPUT)
+        # self.pi = pigpio.pi(host='localhost')
+        self.pi = GPIO
+        self.pi.setmode(GPIO.BCM)
+        self.pi.setup(self.light_p, GPIO.OUT, initial=GPIO.LOW)
+        self.pi.setup(self.fan_p, GPIO.OUT, initial=GPIO.LOW)
+        self.pi.setup(self.buttonB_p, GPIO.IN)
+        self.pi.setup(self.buttonA_p, GPIO.IN)
 
     def switchFan(self, s):
         logging.info("pi.switchFan run from {}".format(sys._getframe().f_back.f_code.co_name))
         s = int(s)
         logging.info("Setting {} for pin {}".format(s, self.fan_p))
-        self.pi.write(self.fan_p, int(s))
+        self.pi.output(self.fan_p, int(s))
 
     def switchLight(self, s):
         logging.info("pi.switchLight run from {}".format(sys._getframe().f_back.f_code.co_name))
         s = int(s)
         logging.info("Setting {} for pin {}".format(s, self.light_p))
-        self.pi.write(self.light_p, int(s))
+        self.pi.output(self.light_p, int(s))
 
     def readPin(self, p):
         logging.info("pi.readPin run from {}".format(sys._getframe().f_back.f_code.co_name))
-        p_v = self.pi.read(p)
+        p_v = self.pi.input(p)
         logging.info("Pin {} is set to {}".format(p, p_v))
         return p_v
 

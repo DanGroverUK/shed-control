@@ -224,7 +224,8 @@ label {
   font-weight: 400;
 }
 
-@media screen and (max-width: 450px) or ({orientation: portrait;}) {
+/*@media screen and ((max-width: 450px) or (orientation: portrait)) {*/
+@media screen and (orientation: portrait) {
   .title {
     font-size: 600%;
     letter-spacing: : -4px;
@@ -259,6 +260,7 @@ label {
   }
   .debugmessage {
     font-size: 60%;
+    font-weight: 400;
   }
 }
 
@@ -270,8 +272,5 @@ label {
   .topcontainer {
     grid-template-columns: 140px auto;
   }
-  .message {
-    font-size: 80%;
-    font-weight: 400,
-  }
+
 }

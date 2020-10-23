@@ -16,18 +16,61 @@ logging.getLogger(__name__)
 
 
 class PiGPIO():
-    def __init__(self):
+    def __init__(self, APID):
+        GPIO.cleanup()
+        self.PiD = PiDisplay()
         self.fan_p = 22
         self.light_p = 17
-        self.buttonA_p = 23
-        self.buttonB_p = 24
+        self.buttonA_p = 18
+        self.buttonB_p = 23
+        self.buttonC_p = 24
+        self.APID = APID
         # self.pi = pigpio.pi(host='localhost')
         self.pi = GPIO
         self.pi.setmode(GPIO.BCM)
         self.pi.setup(self.light_p, GPIO.OUT, initial=GPIO.LOW)
         self.pi.setup(self.fan_p, GPIO.OUT, initial=GPIO.LOW)
-        self.pi.setup(self.buttonB_p, GPIO.IN)
-        self.pi.setup(self.buttonA_p, GPIO.IN)
+        self.pi.setup(self.buttonB_p, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        self.pi.setup(self.buttonA_p, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        self.pi.setup(self.buttonC_p, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        self.pi.add_event_detect(self.buttonA_p,
+                                 GPIO.RISING,
+                                 callback=self.broadcastFlickLights,
+                                 bouncetime=200)
+        self.pi.add_event_detect(self.buttonB_p,
+                                 GPIO.RISING,
+                                 callback=self.broadcastAddFanTime,
+                                 bouncetime=200)
+        self.pi.add_event_detect(self.buttonC_p,
+                                 GPIO.RISING,
+                                 callback=self.broadcastFanOff,
+                                 bouncetime=200)
+
+    def broadcastFlickLights(self, pin):
+        logging.info("broadcastA Triggered!")
+        if self.APID.lightsOn is True:
+            self.pi.output(self.light_p, 0)
+            self.APID.lightsOn = False
+        else:
+            self.pi.output(self.light_p, 1)
+            self.APID.lightsOn = True
+
+    def broadcastAddFanTime(self, pin):
+        logging.info("broadcastB Triggered!")
+        # self.PiD.writeText("Added 15m!")
+        self.APID.fanTimer = self.APID.fanTimer + 900
+        self.switchFan(self.APID.fanTimer)
+        self.PiD.writeFanTimer(self.APID.fanTimer)
+
+    def broadcastFanOff(self, pin):
+        logging.info("broadcastC Triggered!")
+        # self.pi.output(self.fan_p, 0)
+        self.APID.fanTimer = 0
+        self.switchFan(self.APID.fanTimer)
+        self.PiD.writeFanTimer(self.APID.fanTimer)
+        # time.sleep(3)
+        # self.PiD.byeBye()
+
 
     def switchFan(self, s):
         logging.info("pi.switchFan run from {}".format(sys._getframe().f_back.f_code.co_name))

@@ -9,15 +9,18 @@ from pi import PiDisplay, PiGPIO
 
 logging.getLogger(__name__)
 
+class APIData():
+    def __init__(self):
+        self.lightsOn = False
+        self.fanTimer = 0
+        self.pause = 0
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'shedapi'
-lightsOn = False
-fanTimer = 0
-pause = 0
+APID = APIData()
 PiD = PiDisplay()
-PiIO = PiGPIO()
-
+PiIO = PiGPIO(APID)
 
 # Route functions
 
@@ -39,8 +42,7 @@ def apiAdd(obj, val):
                                                                       request.user_agent,
                                                                       request.host))
     logging.info("api.apiAdd Function: obj: {}, val: {}".format(obj, val))
-    global fanTimer
-    global lightsOn
+    global APID
     data = standardData()
     if val > 0:
         if obj == "fan":
@@ -48,7 +50,7 @@ def apiAdd(obj, val):
             message = "{} added to the fan timer.".format(format_timespan(int(val)))
             logging.info(message)
             data.update({
-                "fanTimer": fanTimer,
+                "fanTimer": APID.fanTimer,
                 "message": message
             })
         if obj == "lights":
@@ -69,13 +71,12 @@ def apiSwitchDefault(obj):
     logging.info("api.apiSwitchDefault Function: obj: {}".format(obj))
     s = 0
     if obj == "lights":
-        global lightsOn
-        s = int(not lightsOn)
+        global APID
+        s = int(not APID.lightsOn)
     if obj == "fan":
         logging.info("Switching fan.")
-        global fanTimer
-        logging.info("fanTimer Value: {}".format(fanTimer))
-        if fanTimer > 1:
+        logging.info("fanTimer Value: {}".format(APID.fanTimer))
+        if APID.fanTimer > 1:
             logging.info("Greater than one, so switching 's' to 0.")
             s = 0
         else:
@@ -96,7 +97,6 @@ def apiSwitchValue(obj, val):
     logging.info("api.apiSwitchValue Function: obj: {}, val: {}".format(obj, val))
     s = bool(val)
     if obj == "lights":
-        global lightsOn
         switchLights(s)
     if obj == "fan":
         switchFan(s, val)
@@ -124,7 +124,6 @@ def apiShowStats(sleep):
                                                                       request.host))
     logging.info("api.apiShowStatus Function: sleep: {}".format(sleep))
     global PiD
-    global pause
     data = standardData()
     if (type(sleep) != int):
         data.update({
@@ -188,7 +187,8 @@ def apiShowPins():
         "pin17": PiIO.readPin(17),
         "pin22": PiIO.readPin(22),
         "pin23": PiIO.readPin(23),
-        "pin24": PiIO.readPin(24)
+        "pin24": PiIO.readPin(24),
+        "pin18": PiIO.readPin(18)
     }
     data = standardData()
     data.update({
@@ -206,10 +206,10 @@ def apiShowPins():
 # Non-route functions
 
 def displayPins(pause_s):
-    global pause
+    global APID
     global PiD
-    pause = pause_s
-    while pause > 0:
+    APID.pause = pause_s
+    while APID.pause > 0:
         pdata = {
             "pin17": PiIO.readPin(17),
             "pin22": PiIO.readPin(22),
@@ -223,10 +223,10 @@ def displayPins(pause_s):
 
 
 def displayVars(pause_s):
-    global pause
+    global APID
     global PiD
-    pause = pause_s
-    while pause > 0:
+    APID.pause = pause_s
+    while APID.pause > 0:
         data = standardData()
         del data["message"]
         del data["success"]
@@ -240,10 +240,10 @@ def displayVars(pause_s):
 
 
 def displayStats(pause_s):
-    global pause
+    global APID
     global PiD
-    pause = pause_s
-    while pause > 0:
+    APID.pause = pause_s
+    while APID.pause > 0:
         PiD.showStats()
         time.sleep(0.5)
     PiD.byeBye()
@@ -270,17 +270,15 @@ def status(s):
 
 def standardData():
     # Returns a dict of the standard variables to return to users via JSONify
-    global lightsOn
-    global fanTimer
+    global APID
     global PiIO
-    global pause
     data = {
-        "fanTimer": fanTimer,
-        "lights": lightsOn,
+        "fanTimer": APID.fanTimer,
+        "lights": APID.lightsOn,
         "success": True,
         "message": "",
         "debugmessage": "",
-        "pause": pause
+        "pause": APID.pause
     }
     logging.info("standardData returned: {}".format(str(data)))
     return data
@@ -290,13 +288,13 @@ def switchFan(s, t=900):
     # Adds and removes time from the fan timer, and actually switches the
     # physical object on and off accordingly. 's' is a boolean value, 't'
     # is only used if 's' is True.
-    global fanTimer
+    global APID
     logging.info("api.switchFan Function: s: {}, t:{}".format(s, t))
     if not s:
-        fanTimer = 0
+        APID.fanTimer = 0
         PiD.writeFanTimer(0)
     else:
-        fanTimer = fanTimer + t
+        APID.fanTimer = APID.fanTimer + t
     logging.info("api.switchFan about to run PiIO.switchFan with argument s: {}".format(int(s)))
     PiIO.switchFan(int(s))
 
@@ -304,41 +302,39 @@ def switchFan(s, t=900):
 def switchLights(s):
     # Physically switches the lights on and off.
     logging.info("api.switchLights Function: s: {}".format(s))
-    global lightsOn
-    lightsOn = s
+    global APID
+    APID.lightsOn = s
     PiIO.switchLight(int(s))
 
 
 def checker():
     # The background function that keeps track of the fan timer
     # and writes its value to the screen.
-    global lightsOn
-    global fanTimer
+    global APID
     global PiD
-    global pause
     sleep_c = 0
     while True:
-        if pause > 0:
-            pause -= 1
-            if pause < 0:
-                pause = 0
+        if APID.pause > 0:
+            APID.pause -= 1
+            if APID.pause < 0:
+                APID.pause = 0
         else:
-            if not fanTimer == 0:
-                if fanTimer < 0:
-                    fanTimer = 0
+            if not APID.fanTimer == 0:
+                if APID.fanTimer < 0:
+                    APID.fanTimer = 0
                 else:
-                    PiD.writeFanTimer(fanTimer)
+                    PiD.writeFanTimer(APID.fanTimer)
                     sleep_c = 0
-                    fanTimer -= 1
-                    if fanTimer == 0:
+                    APID.fanTimer -= 1
+                    if APID.fanTimer == 0:
                         logging.info("api.checker switching off the fan!")
                         switchFan(False)
             else:
                 sleep_c += 1
                 if sleep_c == 10:
                     PiD.screenOff()
-                if fanTimer < 0:
-                    fanTimer = 0
+                if APID.fanTimer < 0:
+                    APID.fanTimer = 0
         time.sleep(1)
         # PiIO.readPin(22)
 

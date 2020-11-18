@@ -9,11 +9,13 @@ from pi import PiDisplay, PiGPIO
 
 logging.getLogger(__name__)
 
+
 class APIData():
     def __init__(self):
         self.lightsOn = False
         self.fanTimer = 0
         self.pause = 0
+        self.sleep_c = 0
 
 
 app = Flask(__name__)
@@ -203,19 +205,35 @@ def apiShowPins():
     return jsonify(data)
 
 
+@app.route('/pin/<p>/<state>', methods=['POST'])
+def apiSwitchPin(p, state):
+    global PiIO
+    if state == "0":
+        state = False
+    else:
+        state = True
+    data = standardData()
+    data["message"] = PiIO.writePin(p, state)
+    return jsonify(data)
+
 # Non-route functions
+
 
 def displayPins(pause_s):
     global APID
     global PiD
+    global PiIO
     APID.pause = pause_s
+    pdata = {}
     while APID.pause > 0:
-        pdata = {
-            "pin17": PiIO.readPin(17),
-            "pin22": PiIO.readPin(22),
-            "pin23": PiIO.readPin(23),
-            "pin24": PiIO.readPin(24)
-        }
+        for p in PiIO.usedPins:
+            pdata[p] = PiIO.readPin(p)
+        # pdata = {
+        #     "pin17": PiIO.readPin(17),
+        #     "pin22": PiIO.readPin(22),
+        #     "pin23": PiIO.readPin(23),
+        #     "pin24": PiIO.readPin(24)
+        # }
         # logging.info("apiShowPins Var Data: {}".format(pdata))
         PiD.showVars(pdata)
         time.sleep(0.3)
@@ -312,7 +330,6 @@ def checker():
     # and writes its value to the screen.
     global APID
     global PiD
-    sleep_c = 0
     while True:
         if APID.pause > 0:
             APID.pause -= 1
@@ -324,14 +341,14 @@ def checker():
                     APID.fanTimer = 0
                 else:
                     PiD.writeFanTimer(APID.fanTimer)
-                    sleep_c = 0
+                    APID.sleep_c = 0
                     APID.fanTimer -= 1
                     if APID.fanTimer == 0:
                         logging.info("api.checker switching off the fan!")
                         switchFan(False)
             else:
-                sleep_c += 1
-                if sleep_c == 10:
+                APID.sleep_c += 1
+                if APID.sleep_c == 10:
                     PiD.screenOff()
                 if APID.fanTimer < 0:
                     APID.fanTimer = 0

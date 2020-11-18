@@ -24,6 +24,7 @@ class PiGPIO():
         self.buttonA_p = 18
         self.buttonB_p = 23
         self.buttonC_p = 24
+        self.usedPins = [22, 23, 24, 17, 18]
         self.APID = APID
         # self.pi = pigpio.pi(host='localhost')
         self.pi = GPIO
@@ -36,11 +37,11 @@ class PiGPIO():
         self.pi.add_event_detect(self.buttonA_p,
                                  GPIO.RISING,
                                  callback=self.broadcastFlickLights,
-                                 bouncetime=200)
+                                 bouncetime=700)
         self.pi.add_event_detect(self.buttonB_p,
                                  GPIO.RISING,
                                  callback=self.broadcastAddFanTime,
-                                 bouncetime=200)
+                                 bouncetime=700)
         self.pi.add_event_detect(self.buttonC_p,
                                  GPIO.RISING,
                                  callback=self.broadcastFanOff,
@@ -49,18 +50,25 @@ class PiGPIO():
     def broadcastFlickLights(self, pin):
         logging.info("broadcastA Triggered!")
         if self.APID.lightsOn is True:
+            msg = "Lights: Off"
+            self.PiD.writeText(msg)
             self.pi.output(self.light_p, 0)
             self.APID.lightsOn = False
         else:
+            msg = "Lights: On"
+            self.PiD.writeText(msg)
             self.pi.output(self.light_p, 1)
             self.APID.lightsOn = True
+        self.APID.pause = 3
+        self.APID.sleep_c = 0
 
     def broadcastAddFanTime(self, pin):
         logging.info("broadcastB Triggered!")
-        # self.PiD.writeText("Added 15m!")
-        self.APID.fanTimer = self.APID.fanTimer + 900
+        # self.PiD.writeText("Fan Timer:\n+30m")
+        self.APID.fanTimer = self.APID.fanTimer + 1800
         self.switchFan(self.APID.fanTimer)
-        self.PiD.writeFanTimer(self.APID.fanTimer)
+        self.PiD.writeFanTimer(self.APID.fanTimer, msg="+30m")
+        self.APID.pause = 1
 
     def broadcastFanOff(self, pin):
         logging.info("broadcastC Triggered!")
@@ -70,7 +78,6 @@ class PiGPIO():
         self.PiD.writeFanTimer(self.APID.fanTimer)
         # time.sleep(3)
         # self.PiD.byeBye()
-
 
     def switchFan(self, s):
         logging.info("pi.switchFan run from {}".format(sys._getframe().f_back.f_code.co_name))
@@ -89,6 +96,20 @@ class PiGPIO():
         p_v = self.pi.input(p)
         logging.info("Pin {} is set to {}".format(p, p_v))
         return p_v
+
+    def writePin(self, p, state):
+        logging.info("pi.writePin run from {}".format(sys._getframe().f_back.f_code.co_name))
+        try:
+            p = int(p)
+            state = bool(state)
+        except TypeError:
+            return False
+        if p not in self.usedPins:
+            self.pi.setup(p, GPIO.OUT, initial=state)
+            self.usedPins.insert(0, p)
+        else:
+            self.pi.output(p, state)
+        return "Pin {} set to {}".format(p, state)
 
 
 class PiDisplay():
@@ -122,27 +143,31 @@ class PiDisplay():
         self.oled.show()
 
     def newScreen(self, color=0):
-        logging.info("newScreen run from {}".format(sys._getframe().f_back.f_code.co_name))
+        # logging.info("newScreen run from {}".format(sys._getframe().f_back.f_code.co_name))
         image = Image.new("1", (self.oled.width, self.oled.height), color=color)
         scr = {"image": image,
                "draw": ImageDraw.Draw(image)
                }
         return scr
 
-    def writeText(self, t):
+    def writeText(self, t, f_size="medium"):
+        if f_size == "medium":
+            font = self.font
+        if f_size == "small":
+            font = self.font_sml
         scr = self.newScreen()
-        scr["draw"].text((self.left, self.top), t, font=self.font, fill=255)
+        scr["draw"].multiline_text((self.left, self.top), t, font=font, fill=255)
         self.oled.image(scr["image"])
         self.oled.show()
 
-    def writeFanTimer(self, t):
+    def writeFanTimer(self, t, msg="Fan Timer:"):
         # Expects the time in seconds as an int.
         t = int(t)
         h, r = divmod(t, 3600)
         m, s = divmod(r, 60)
         scr = self.newScreen()
         d = scr["draw"]
-        message = "Fan Timer:\n{}h {}m {}s".format(h, m, s)
+        message = "{}\n{}h {}m {}s".format(msg, h, m, s)
         d.multiline_text((2, 2), message, font=self.font, fill=255, align="center")
         self.oled.image(scr["image"])
         self.oled.show()

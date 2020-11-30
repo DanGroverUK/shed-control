@@ -4,6 +4,7 @@ import time
 import threading
 import subprocess
 import logging
+import time
 
 import board
 import busio
@@ -24,13 +25,15 @@ class PiGPIO():
         self.buttonA_p = 18
         self.buttonB_p = 23
         self.buttonC_p = 24
-        self.usedPins = [22, 23, 24, 17, 18]
+        self.error_p = 4
+        self.usedPins = [22, 23, 24, 17, 18, 4]
         self.APID = APID
         # self.pi = pigpio.pi(host='localhost')
         self.pi = GPIO
         self.pi.setmode(GPIO.BCM)
         self.pi.setup(self.light_p, GPIO.OUT, initial=GPIO.LOW)
         self.pi.setup(self.fan_p, GPIO.OUT, initial=GPIO.LOW)
+        self.pi.setup(self.error_p, GPIO.OUT, initial=GPIO.LOW)
         self.pi.setup(self.buttonB_p, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         self.pi.setup(self.buttonA_p, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         self.pi.setup(self.buttonC_p, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -41,43 +44,64 @@ class PiGPIO():
         self.pi.add_event_detect(self.buttonB_p,
                                  GPIO.RISING,
                                  callback=self.broadcastAddFanTime,
-                                 bouncetime=700)
+                                 bouncetime=600)
         self.pi.add_event_detect(self.buttonC_p,
                                  GPIO.RISING,
                                  callback=self.broadcastFanOff,
                                  bouncetime=200)
 
     def broadcastFlickLights(self, pin):
-        logging.info("broadcastA Triggered!")
-        if self.APID.lightsOn is True:
-            msg = "Lights: Off"
-            self.PiD.writeText(msg)
-            self.pi.output(self.light_p, 0)
-            self.APID.lightsOn = False
+        time.sleep(0.05)
+        if self.pi.input(self.buttonA_p) == 1:
+            logging.info("broadcastA Triggered!")
+            if self.APID.lightsOn is True:
+                msg = "Lights: Off"
+                self.PiD.writeText(msg)
+                self.pi.output(self.light_p, 0)
+                self.APID.lightsOn = False
+            else:
+                msg = "Lights: On"
+                self.PiD.writeText(msg)
+                self.pi.output(self.light_p, 1)
+                self.APID.lightsOn = True
+            self.APID.pause = 3
+            self.APID.sleep_c = 0
         else:
-            msg = "Lights: On"
-            self.PiD.writeText(msg)
-            self.pi.output(self.light_p, 1)
-            self.APID.lightsOn = True
-        self.APID.pause = 3
-        self.APID.sleep_c = 0
+            logging.info("False positive on A")
+            self.pi.output(self.error_p, 1)
+            time.sleep(0.1)
+            self.pi.output(self.error_p, 0)
 
     def broadcastAddFanTime(self, pin):
-        logging.info("broadcastB Triggered!")
-        # self.PiD.writeText("Fan Timer:\n+30m")
-        self.APID.fanTimer = self.APID.fanTimer + 1800
-        self.switchFan(self.APID.fanTimer)
-        self.PiD.writeFanTimer(self.APID.fanTimer, msg="+30m")
-        self.APID.pause = 1
+        time.sleep(0.05)
+        if self.pi.input(self.buttonB_p) == 1:
+            logging.info("broadcastB Triggered!")
+            # self.PiD.writeText("Fan Timer:\n+30m")
+            self.APID.fanTimer = self.APID.fanTimer + 1800
+            self.switchFan(self.APID.fanTimer)
+            self.PiD.writeFanTimer(self.APID.fanTimer, msg="+30m")
+            self.APID.pause = 1
+        else:
+            logging.info("False positive on B")
+            self.pi.output(self.error_p, 1)
+            time.sleep(0.1)
+            self.pi.output(self.error_p, 0)
 
     def broadcastFanOff(self, pin):
-        logging.info("broadcastC Triggered!")
-        # self.pi.output(self.fan_p, 0)
-        self.APID.fanTimer = 0
-        self.switchFan(self.APID.fanTimer)
-        self.PiD.writeFanTimer(self.APID.fanTimer)
-        # time.sleep(3)
-        # self.PiD.byeBye()
+        time.sleep(0.05)
+        if self.pi.input(self.buttonC_p) == 1:
+            logging.info("broadcastC Triggered!")
+            # self.pi.output(self.fan_p, 0)
+            self.APID.fanTimer = 0
+            self.switchFan(self.APID.fanTimer)
+            self.PiD.writeFanTimer(self.APID.fanTimer)
+            # time.sleep(3)
+            # self.PiD.byeBye()
+        else:
+            logging.info("False positive on B")
+            self.pi.output(self.error_p, 1)
+            time.sleep(0.1)
+            self.pi.output(self.error_p, 0)
 
     def switchFan(self, s):
         logging.info("pi.switchFan run from {}".format(sys._getframe().f_back.f_code.co_name))

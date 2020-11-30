@@ -11,7 +11,7 @@ if [ ! $# == 1 ]; then
     rm ~/blah
 else
     mode="$1"
-    if [ $mode ==  "shed" ]; then
+    if [ $mode ==  "web" ]; then
         echo "Just updating Shed"
         rsync -avz --exclude-from 'exclude-list.txt' shed/ ubuntu@dan-grover.com:/var/www/html/shed/
         rsync -avz --chmod=Fu=rwx,Fg=rwx,Fo=rwx requirements.txt ubuntu@dan-grover.com:/var/www/html/shed/requirements.txt
